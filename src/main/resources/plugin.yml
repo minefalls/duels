@@ -1,6 +1,6 @@
 name: Duels
 author: Dartanman
-main: main.dartanman.duels.Main
+main: xyz.minefalls.duels.Main
 version: 3.0.7
 api-version: 1.16
 commands:

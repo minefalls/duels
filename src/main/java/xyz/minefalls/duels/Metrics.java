@@ -1,4 +1,4 @@
-package main.dartanman.duels;
+package xyz.minefalls.duels;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

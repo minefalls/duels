@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Duels</name>
+    <name>MineFallsDuels</name>
 
     <description>duels plugin painstakingly made by TheGiorno</description>
     <properties>

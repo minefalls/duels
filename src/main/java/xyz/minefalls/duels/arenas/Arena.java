@@ -1,4 +1,4 @@
-package main.dartanman.duels.arenas;
+package xyz.minefalls.duels.arenas;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -6,8 +6,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import main.dartanman.duels.Main;
-import main.dartanman.duels.utils.PlayerRestorationInfo;
+import xyz.minefalls.duels.Main;
+import xyz.minefalls.duels.utils.PlayerRestorationInfo;
 
 import org.bukkit.ChatColor;
 

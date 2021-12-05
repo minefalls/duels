@@ -1,4 +1,4 @@
-package main.dartanman.duels.arenas;
+package xyz.minefalls.duels.arenas;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import main.dartanman.duels.Main;
+import xyz.minefalls.duels.Main;
 import net.md_5.bungee.api.ChatColor;
 
 /**

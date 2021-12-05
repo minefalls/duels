@@ -1,4 +1,4 @@
-package main.dartanman.duels.commands;
+package xyz.minefalls.duels.commands;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package main.dartanman.duels.events;
+package xyz.minefalls.duels.events;
 
 import java.util.UUID;
 
@@ -10,9 +10,9 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
-import main.dartanman.duels.Main;
-import main.dartanman.duels.arenas.Arena;
-import main.dartanman.duels.utils.PlayerRestorationInfo;
+import xyz.minefalls.duels.Main;
+import xyz.minefalls.duels.arenas.Arena;
+import xyz.minefalls.duels.utils.PlayerRestorationInfo;
 /**
  * ArenaEvents - Listens to multiple events relating to Duels in Arenas
  * @author TheGiorno

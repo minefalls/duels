@@ -1,4 +1,4 @@
-package main.dartanman.duels;
+package xyz.minefalls.duels;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,13 +17,13 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import main.dartanman.duels.arenas.ArenaManager;
-import main.dartanman.duels.commands.DuelCmd;
-import main.dartanman.duels.commands.DuelTabCompleter;
-import main.dartanman.duels.events.ArenaEvents;
-import main.dartanman.duels.kits.KitManager;
-import main.dartanman.duels.utils.LeaderboardUtils;
-import main.dartanman.duels.utils.StatUtils;
+import xyz.minefalls.duels.arenas.ArenaManager;
+import xyz.minefalls.duels.commands.DuelCmd;
+import xyz.minefalls.duels.commands.DuelTabCompleter;
+import xyz.minefalls.duels.events.ArenaEvents;
+import xyz.minefalls.duels.kits.KitManager;
+import xyz.minefalls.duels.utils.LeaderboardUtils;
+import xyz.minefalls.duels.utils.StatUtils;
 
 /**
  * Main duels class
@@ -48,7 +48,6 @@ public class Main extends JavaPlugin{
 	 * plugin enable method
 	 */
 	public void onEnable() {
-        Metrics metrics = new Metrics(this, pluginId);
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 		

@@ -1,12 +1,12 @@
-package main.dartanman.duels.commands;
+package xyz.minefalls.duels.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import main.dartanman.duels.Main;
-import main.dartanman.duels.arenas.Arena;
+import xyz.minefalls.duels.Main;
+import xyz.minefalls.duels.arenas.Arena;
 
 import java.util.List;
 

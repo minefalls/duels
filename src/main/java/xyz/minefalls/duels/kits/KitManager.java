@@ -1,4 +1,4 @@
-package main.dartanman.duels.kits;
+package xyz.minefalls.duels.kits;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import main.dartanman.duels.Main;
+import xyz.minefalls.duels.Main;
 
 /**
  * KitManager - Manages everything to do with kits
