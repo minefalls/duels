@@ -7,6 +7,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import xyz.minefalls.duels.Main;
+import xyz.minefalls.duels.utils.DiscordLinkedUtils;
 import xyz.minefalls.duels.utils.PlayerRestorationInfo;
 
 import org.bukkit.ChatColor;
@@ -25,6 +26,7 @@ public class Arena {
 	private Location spawn2;
 	private boolean active = false;
 	private Player[] players;
+	private DiscordLinkedUtils discordUtils = new DiscordLinkedUtils();
 	
 	/**
 	 * Constructs a new Arena with the given ID and name
@@ -67,11 +69,16 @@ public class Arena {
 	 */
 	public void end(Player winner, Player loser) {
 		winner.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.WinMessage")));
+
+		// TODO: add logic for adding coins to players via their Discord ID and MongoDB
+		String discordID = discordUtils.getDiscordID(winner.getUniqueId());
+
 		plugin.getStatUtils().addWin(winner);
 		PlayerRestorationInfo pri = new PlayerRestorationInfo(null);
 		try {
 			loser.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.LoseMessage")));	
-		}catch(NullPointerException e) {
+		}
+		catch(NullPointerException e) {
 			// loser disconnected, they didn't die. As such, they are not here to be sent a message.
 		}
 		for(PlayerRestorationInfo priL : PlayerRestorationInfo.pris) {
@@ -129,12 +136,13 @@ public class Arena {
 	 *   Whether or not the player is in this arena
 	 */
 	public boolean containsPlayer(Player player) {
-		for(Player p : players) {
+		for (Player p : players) {
 			try {
 				if(p.getName().equals(player.getName())) {
 					return true;
 				}
-			}catch(NullPointerException e) {
+			}
+			catch(NullPointerException e) {
 				// null is not the player
 				continue;
 			}
