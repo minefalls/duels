@@ -4,7 +4,9 @@ main: xyz.minefalls.duels.Main
 version: 3.0.7
 api-version: 1.16
 commands:
-  duel:
+  dueladmin:
     description: Duels base command
     usage: /<command>
-    aliases: [duels, 1v1, 1v1duel, duel1v1]
+  duel:
+    description: Duel someone!
+    usage: /<command> PlayerName

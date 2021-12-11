@@ -33,7 +33,8 @@ public class ArenaManager {
 		plugin = pl;
 		try {
 			loadAllArenasFromFile();	
-		}catch(Exception e) {
+		}
+		catch(Exception e) {
 			e.printStackTrace();
 			plugin.getLogger().info("Failed to load any arenas. Perhaps you haven't made one yet?");
 			plugin.getLogger().info(ChatColor.GREEN + "If this is the first time you've loaded this plugin, the above error is normal. Don't worry about it.");
@@ -43,6 +44,7 @@ public class ArenaManager {
 	/**
 	 * Returns a list of all arenas
 	 * @return
+	 *   arenaList
 	 */
 	public List<Arena> getArenaList(){
 		return arenaList;
@@ -89,7 +91,7 @@ public class ArenaManager {
 		String path = "Arenas." + arena.getName();
 		Location s1 = arena.getSpawn1();
 		Location s2 = arena.getSpawn2();
-		if(s1 == null || s2 == null) {
+		if (s1 == null || s2 == null) {
 			return;
 		}
 		World s1World = s1.getWorld();

@@ -7,7 +7,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import xyz.minefalls.duels.Main;
-import xyz.minefalls.duels.utils.DiscordLinkedUtils;
+import xyz.minefalls.duels.utils.CoinUtils;
 import xyz.minefalls.duels.utils.PlayerRestorationInfo;
 
 import org.bukkit.ChatColor;
@@ -18,15 +18,16 @@ import org.bukkit.ChatColor;
  * @author TheGiorno
  */
 public class Arena {
-	
+
 	private Main plugin;
 	private int id;
 	private String name;
 	private Location spawn1;
 	private Location spawn2;
+	private Location lobbyLocation;
 	private boolean active = false;
 	private Player[] players;
-	private DiscordLinkedUtils discordUtils = new DiscordLinkedUtils();
+	private CoinUtils coinUtils;
 	
 	/**
 	 * Constructs a new Arena with the given ID and name
@@ -40,6 +41,8 @@ public class Arena {
 		this.name = name;
 		plugin = pl;
 		players = new Player[2];
+		this.coinUtils = pl.getCoinUtils();
+		this.lobbyLocation = pl.getLobbyManager().getLobbyLocation();
 	}
 	
 	/**
@@ -67,18 +70,17 @@ public class Arena {
 	 * @param loser
 	 *   The loser
 	 */
-	public void end(Player winner, Player loser) {
+	public void end(Player winner, Player loser) { // i fucking hate redundant errors
 		winner.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.WinMessage")));
 
-		// TODO: add logic for adding coins to players via their Discord ID and MongoDB
-		String discordID = discordUtils.getDiscordID(winner.getUniqueId());
+		coinUtils.addCoins(winner, 100);
 
 		plugin.getStatUtils().addWin(winner);
 		PlayerRestorationInfo pri = new PlayerRestorationInfo(null);
 		try {
-			loser.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.LoseMessage")));	
+			loser.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.LoseMessage")));
 		}
-		catch(NullPointerException e) {
+		catch (NullPointerException e) {
 			// loser disconnected, they didn't die. As such, they are not here to be sent a message.
 		}
 		for(PlayerRestorationInfo priL : PlayerRestorationInfo.pris) {
@@ -88,7 +90,9 @@ public class Arena {
 		}
 		pri.apply();
 		PlayerRestorationInfo.pris.remove(pri);
+		players[0].teleport(lobbyLocation);
 		players[0] = null;
+		players[1].teleport(lobbyLocation);
 		players[1] = null;
 		active = false;
 	}
@@ -100,7 +104,7 @@ public class Arena {
 		PlayerRestorationInfo pri1 = new PlayerRestorationInfo(players[0]);
 		PlayerRestorationInfo pri2 = new PlayerRestorationInfo(players[1]);
 		active = true;
-		if (spawn1 == null || spawn2 == null) {
+		if (spawn1 == null || spawn2 == null || lobbyLocation == null) {
 			for(Player p : players) {
 				p.sendMessage(ChatColor.RED + "Unfortunately, this Arena has been set up incorrectly. Contact an Administrator to fix this!");
 				p.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "(They forgot to set the spawn points)");
@@ -158,15 +162,18 @@ public class Arena {
 	 *   Whether or not the player was added
 	 */
 	public boolean addPlayer(Player player) {
-		if(players[0] == null) {
+		if (players[0] == null) {
 			players[0] = player;
+			players[0].teleport(getSpawn1());
 			return true;
-		}else if(players[1] == null) {
-			players[1] = player;
-			return true;
-		}else {
-			return false;
 		}
+		else if (players[1] == null) {
+			players[1] = player;
+			players[1].teleport(getSpawn2());
+			return true;
+		}
+
+		else return false;
 	}
 	
 	/**
@@ -177,13 +184,15 @@ public class Arena {
 	 *   Whether or not the player was removed
 	 */
 	public boolean removePlayer(Player player) {
-		if(players[0].getName().equals(player.getName())) {
+		if (players[0].getName().equals(player.getName())) {
 			players[0] = null;
 			return true;
-		}else if (players[1].getName().equals(player.getName())) {
+		}
+		else if (players[1].getName().equals(player.getName())) {
 			players[1] = null;
 			return true;
-		}else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -263,6 +272,24 @@ public class Arena {
 	 */
 	public void setSpawn2(Location spawn2) {
 		this.spawn2 = spawn2;
+	}
+
+	/**
+	 * Returns the second spawnpoint
+	 * @return
+	 *   The second spawnpoint
+	 */
+	public Location getLobbyLocation() {
+		return lobbyLocation;
+	}
+
+	/**
+	 * Sets the second spawnpoint
+	 * @param lobbyLocation
+	 *   The Location of the lobby
+	 */
+	public void setLobbyLocation(Location lobbyLocation) {
+		this.lobbyLocation = lobbyLocation;
 	}
 
 }

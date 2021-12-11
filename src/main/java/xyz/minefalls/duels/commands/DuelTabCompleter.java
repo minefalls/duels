@@ -12,18 +12,21 @@ public class DuelTabCompleter implements TabCompleter{
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
 		List<String> arguments = new ArrayList();
-		if(args.length == 1) {
+		if (args.length == 1) {
 			arguments.add("help");
 			arguments.add("join");
 			arguments.add("leaderboard");
 			arguments.add("arenas");
 			arguments.add("kits");
-		}else if(args.length == 2) {
-			if(args[1].equalsIgnoreCase("arenas")) {
+			arguments.add("setlobby");
+		}
+		else if(args.length == 2) {
+			if (args[1].equalsIgnoreCase("arenas")) {
 				arguments.add("create");
 				arguments.add("setspawn1");
 				arguments.add("setspawn2");
-			}else if(args[1].equalsIgnoreCase("kits")) {
+			}
+			else if(args[1].equalsIgnoreCase("kits")) {
 				arguments.add("create");
 				arguments.add("delete");
 				arguments.add("list");

@@ -5,6 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -18,10 +21,14 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import xyz.minefalls.duels.arenas.ArenaManager;
+import xyz.minefalls.duels.arenas.LobbySpawnManager;
+import xyz.minefalls.duels.commands.Duel;
 import xyz.minefalls.duels.commands.DuelCmd;
 import xyz.minefalls.duels.commands.DuelTabCompleter;
 import xyz.minefalls.duels.events.ArenaEvents;
 import xyz.minefalls.duels.kits.KitManager;
+import xyz.minefalls.duels.utils.CoinUtils;
+import xyz.minefalls.duels.utils.DiscordLinkedUtils;
 import xyz.minefalls.duels.utils.LeaderboardUtils;
 import xyz.minefalls.duels.utils.StatUtils;
 
@@ -29,24 +36,31 @@ import xyz.minefalls.duels.utils.StatUtils;
  * Main duels class
  * @author TheGiorno
  */
-public class Main extends JavaPlugin{
-	
+public class Main extends JavaPlugin {
+
 	/*
-	 * Changelog:
-	 * Tracks quits
+	 * Known bugs:
+	 *  - arenas get removed from the arena list after every reload/restart
+	 *  - players don't get teleported to the lobby location
 	 */
 	
-	private FileConfiguration statsFile = new YamlConfiguration();
+	@Getter private	FileConfiguration statsFile = new YamlConfiguration();
 	private File statsF;
 	
-	private ArenaManager arenaManager;
-	private KitManager kitManager;
-	private StatUtils statUtils;
-	private LeaderboardUtils lbUtils;
+	@Getter private ArenaManager arenaManager;
+	@Getter private KitManager kitManager;
+	@Getter private StatUtils statUtils;
+	@Getter private LeaderboardUtils lbUtils;
+	@Getter private DiscordLinkedUtils discordUtils;
+	@Getter private CoinUtils coinUtils;
+	@Getter private MongoClient mongoClient;
+	@Getter private LobbySpawnManager lobbyManager;
+
 	
 	/**
 	 * plugin enable method
 	 */
+	@Override
 	public void onEnable() {
 		getConfig().options().copyDefaults(true);
 		saveConfig();
@@ -56,18 +70,23 @@ public class Main extends JavaPlugin{
 		kitManager = new KitManager(this);
 		statUtils = new StatUtils(this);
 		lbUtils = new LeaderboardUtils(this);
-		getCommand("duels").setExecutor(new DuelCmd(this));
-		getCommand("duels").setTabCompleter(new DuelTabCompleter());
+		lobbyManager = new LobbySpawnManager(this);
+		mongoClient = MongoClients.create("mongodb+srv://giorno420:giornoisgod@cluster0.c5xhj.mongodb.net/test?ssl=true&ssl_cert_reqs=CERT_NONE");
+		discordUtils = new DiscordLinkedUtils(this);
+		coinUtils = new CoinUtils(this);
+
+		getCommand("dueladmin").setExecutor(new DuelCmd(this));
+		getCommand("dueladmin").setTabCompleter(new DuelTabCompleter());
+		getCommand("duel").setExecutor(new Duel(this));
 		getServer().getPluginManager().registerEvents(new ArenaEvents(this), this);
 	}
-	
+
 	/**
-	 * get the stats file
-	 * @return
-	 *   The stats file
+	 * plugin disable method
 	 */
-	public FileConfiguration getStatsFile() {
-		return statsFile;
+	@Override
+	public void onDisable(){
+
 	}
 	
 	/**
@@ -91,7 +110,8 @@ public class Main extends JavaPlugin{
 		statsFile = new YamlConfiguration();
 		try {
 			statsFile.load(statsF);
-		} catch (IOException | InvalidConfigurationException e) {
+		}
+		catch (IOException | InvalidConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
@@ -104,44 +124,13 @@ public class Main extends JavaPlugin{
 	 *   Name to save it as
 	 */
 	private void saveRes(File file, String name) {
-		if(!file.exists()) {
+		if (!file.exists()) {
 			file.getParentFile().mkdirs();
 			saveResource(name, false);
 		}
 	}
-	
-	/**
-	 * @return
-	 *   LeaderboardUtils
-	 */
-	public LeaderboardUtils getLBUtils() {
-		return lbUtils;
-	}
-	
-	/**
-	 * @return
-	 *   The StatUtils
-	 */
-	public StatUtils getStatUtils() {
-		return statUtils;
-	}
-	
-	/**
-	 * @return
-	 *   The ArenaManager
-	 */
-	public ArenaManager getArenaManager() {
-		return arenaManager;
-	}
-	
-	/**
-	 * @return
-	 *   The KitManager
-	 */
-	public KitManager getKitManager() {
-		return kitManager;
-	}
-	
+
+
 	/**
 	 * converts the player's inventory into Base64 strings. First string is the content and second is the armor
      * 
@@ -153,7 +142,7 @@ public class Main extends JavaPlugin{
     	Inventory inv = Bukkit.createInventory(null, 36);
     	ItemStack[] items = playerInventory.getContents();
     	ItemStack[] onlyMainItems = new ItemStack[36];
-    	for(int i = 0; i < onlyMainItems.length; i++) {
+    	for (int i = 0; i < onlyMainItems.length; i++) {
     		onlyMainItems[i] = items[i];
     	}
     	inv.setContents(onlyMainItems);
@@ -191,7 +180,8 @@ public class Main extends JavaPlugin{
             // Serialize that array
             dataOutput.close();
             return Base64Coder.encodeLines(outputStream.toByteArray());
-        } catch (Exception e) {
+        }
+    	catch (Exception e) {
             throw new IllegalStateException("Unable to save item stacks.", e);
         }
     }

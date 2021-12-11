@@ -1,4 +1,4 @@
-# dont manually write the kits unless you speak base64
+# don't manually write the kits unless you speak base64
 Settings:
   ForceHealth: true
 Messages:
@@ -21,6 +21,7 @@ Messages:
   NotInDuelMessage: '&cYou are not in a Duel, so you cannot leave one!'
   LeftDuelMessage: '&aYou left the duel.'
   CannotLeaveDuelMessage: '&cThe duel has already started! You cannot leave now!'
+  PlayerNotOnlineMessage: '&cThe player &e<player>&c is not online!'
 Kits:
   default:
   - "rO0ABXcEAAAAJHNyABpvcmcuYnVra2l0LnV0aWwuaW8uV3JhcHBlcvJQR+zxEm8FAgABTAADbWFw\r\
@@ -50,4 +51,5 @@ Kits:
     \nU3NxAH4AAHNxAH4AA3VxAH4ABgAAAANxAH4ACHEAfgAJcQB+AAp1cQB+AAYAAAADcQB+AAxzcQB+\r\
     \nAA0AAAqqdAAPSVJPTl9DSEVTVFBMQVRFc3EAfgAAc3EAfgADdXEAfgAGAAAAA3EAfgAIcQB+AAlx\r\
     \nAH4ACnVxAH4ABgAAAANxAH4ADHNxAH4ADQAACqp0AAtJUk9OX0hFTE1FVA==\r\n"
+LobbySpawn:
 Arenas:

@@ -1,5 +1,6 @@
 package xyz.minefalls.duels.events;
 
+import java.net.UnknownHostException;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -26,7 +27,7 @@ public class ArenaEvents implements Listener{
 	}
 	
 	@EventHandler
-	public void onDeath(PlayerDeathEvent event) {
+	public void onDeath(PlayerDeathEvent event) throws UnknownHostException {
 		Player player = event.getEntity();
 		// Currently unused, but will be used if/when I support Bungeecord.
 		boolean bungee = false;
@@ -54,7 +55,7 @@ public class ArenaEvents implements Listener{
 	
 	
 	@EventHandler
-	public void onQuit(PlayerQuitEvent event) {
+	public void onQuit(PlayerQuitEvent event) throws UnknownHostException {
 		Player player = event.getPlayer();
 		UUID uuid = player.getUniqueId();
 		String uuidStr = uuid.toString();

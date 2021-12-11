@@ -3,13 +3,10 @@ package xyz.minefalls.duels.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import xyz.minefalls.duels.Main;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +20,13 @@ import java.util.stream.Collectors;
 public class DiscordLinkedUtils {
 
     private Gson gson;
+    private Main instance;
 
     /**
      * Constructs DiscordLinkedUtils
      */
-    public DiscordLinkedUtils(){
+    public DiscordLinkedUtils(Main plugin){
+        this.instance = plugin;
         this.gson = new Gson();
     }
 

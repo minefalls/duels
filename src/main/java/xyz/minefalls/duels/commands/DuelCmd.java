@@ -15,7 +15,6 @@ import org.bukkit.ChatColor;
 /**
  * DuelCmd - Executes the /duel command.
  * @author TheGiorno
- *
  */
 public class DuelCmd implements CommandExecutor{
 	
@@ -74,7 +73,7 @@ public class DuelCmd implements CommandExecutor{
 	 * Runs the command
 	 */
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if(!(sender instanceof Player)) {
+		if (!(sender instanceof Player)) {
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NotAPlayerMessage")));
 			return true;
 		}
@@ -88,6 +87,15 @@ public class DuelCmd implements CommandExecutor{
 		else if (args.length == 1) {
 			if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")) {
 				showHelpMenu(player, label);
+				return true;
+			}
+			else if (args[0].equalsIgnoreCase("setlobby")) {
+				if (!player.hasPermission("duels.arenas.setlobby")) {
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
+					return true;
+				}
+				player.sendMessage(ChatColor.GREEN + "Lobby location Set!");
+				plugin.getLobbyManager().saveLobbyLocation(player.getLocation());
 				return true;
 			}
 			else if (args[0].equalsIgnoreCase("join")){
@@ -119,15 +127,16 @@ public class DuelCmd implements CommandExecutor{
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
 					return true;
 				}
-				List<String> lb = plugin.getLBUtils().createLeaderboard();
+				List<String> lb = plugin.getLbUtils().createLeaderboard();
 				int i = 1;
 				player.sendMessage(ChatColor.BLUE + "Duels Wins Leaderboard" + ChatColor.WHITE + ":");
-				for(String s : lb) {
+				for (String s : lb) {
 					player.sendMessage(i + ". " + s);
 					i++;
 				}
 				return true;
-			} else if (args[0].equalsIgnoreCase("leave") || args[0].equalsIgnoreCase("quit")) {
+			}
+			else if (args[0].equalsIgnoreCase("leave") || args[0].equalsIgnoreCase("quit")) {
 				if (!player.hasPermission("duels.leave")) {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
 					return true;
@@ -171,38 +180,42 @@ public class DuelCmd implements CommandExecutor{
 					return true;
 				}
 			}
-			else if(args[0].equalsIgnoreCase("join")) {
+			else if (args[0].equalsIgnoreCase("join")) {
 				Arena check = plugin.getArenaManager().getArena(player);
-				if(check != null) {
+				if (check != null) {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.AlreadyInDuelMessage")));
 					return true;
 				}
 				String arenaName = args[1];
 				Arena arena = plugin.getArenaManager().getArena(arenaName);
-				if(arena == null) {
+				if (arena == null) {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoArenaByThatNameMessage")).replace("<arena>", arenaName));
 					return true;
-				}else {
-					if(arena.getActive()) {
+				}
+				else {
+					if (arena.getActive()) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.ThatArenaIsFullMessage")));
 						return true;
-					}else {
+					}
+					else {
 						arena.addPlayer(player);
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.JoinedMessage")).replace("<arena>", arena.getName()));
-						if(arena.canStart()) {
+						if (arena.canStart()) {
 							arena.start();
 						}
 						return true;
 					}
 				}
-			}else {
+			}
+			else {
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.IncorrectArgsMessage")));
 				return true;
 			}
-		}else if (args.length == 3) {
-			if(args[0].equalsIgnoreCase("kit") || args[0].equalsIgnoreCase("kits")) {
-				if(args[1].equalsIgnoreCase("create")) {
-					if(!player.hasPermission("duels.kits.create")) {
+		}
+		else if (args.length == 3) {
+			if (args[0].equalsIgnoreCase("kit") || args[0].equalsIgnoreCase("kits")) {
+				if (args[1].equalsIgnoreCase("create")) {
+					if (!player.hasPermission("duels.kits.create")) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
 						return true;
 					}
@@ -210,39 +223,45 @@ public class DuelCmd implements CommandExecutor{
 					plugin.getKitManager().saveKit(player, kitName);
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.CreateKitMessage")).replace("<kit>", kitName.toLowerCase()));
 					return true;
-				}else if(args[1].equalsIgnoreCase("select") || args[1].equalsIgnoreCase("equip")) {
-					if(!player.hasPermission("duels.kits.select")) {
+				}
+				else if (args[1].equalsIgnoreCase("select") || args[1].equalsIgnoreCase("equip")) {
+					if (!player.hasPermission("duels.kits.select")) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
 						return true;
 					}
 					String kitName = args[2];
-					if(!plugin.getKitManager().setKit(player, kitName)) {
+					if (!plugin.getKitManager().setKit(player, kitName)) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoKitByThatNameMessage")).replace("<kit>", kitName));
 						return true;
-					}else {
+					}
+					else {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.SelectKitMessage")).replace("<kit>", kitName));
 						return true;
 					}
-				}else if(args[1].equalsIgnoreCase("delete")) {
-					if(!player.hasPermission("duels.kits.delete")) {
+				}
+				else if (args[1].equalsIgnoreCase("delete")) {
+					if (!player.hasPermission("duels.kits.delete")) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
 						return true;
 					}
 					String kitName = args[2];
-					if(!plugin.getKitManager().deleteKit(kitName)) {
+					if (!plugin.getKitManager().deleteKit(kitName)) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoKitByThatNameMessage")).replace("<kit>", kitName));
 						return true;
-					}else {
+					}
+					else {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.DeleteKitMessage")).replace("<kit>", kitName));
 						return true;
 					}
-				}else {
+				}
+				else {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.IncorrectArgsMessage")));
 					return true;
 				}
-			}else if(args[0].equalsIgnoreCase("arena") || args[0].equalsIgnoreCase("arenas")) {
-				if(args[1].equalsIgnoreCase("create")) {
-					if(!player.hasPermission("duels.arenas.create")) {
+			}
+			else if (args[0].equalsIgnoreCase("arena") || args[0].equalsIgnoreCase("arenas")) {
+				if (args[1].equalsIgnoreCase("create")) {
+					if (!player.hasPermission("duels.arenas.create")) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
 						return true;
 					}
@@ -251,14 +270,15 @@ public class DuelCmd implements CommandExecutor{
 					plugin.getArenaManager().saveArenaToList(arena);
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.CreateArenaMessage")));
 					return true;
-				}else if(args[1].equalsIgnoreCase("setspawn1")) {
-					if(!player.hasPermission("duels.arenas.setspawn")) {
+				}
+				else if (args[1].equalsIgnoreCase("setspawn1")) {
+					if (!player.hasPermission("duels.arenas.setspawn")) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
 						return true;
 					}
 					String arenaName = args[2];
 					Arena arena = plugin.getArenaManager().getArena(arenaName);
-					if(arena == null) {
+					if (arena == null) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoArenaByThatNameMessage")).replace("<arena>", arenaName));
 						return true;
 					}
@@ -266,14 +286,15 @@ public class DuelCmd implements CommandExecutor{
 					player.sendMessage(ChatColor.GREEN + "Spawn1 Set!");
 					plugin.getArenaManager().saveArenaToFile(arena);
 					return true;
-				}else if(args[1].equalsIgnoreCase("setspawn2")) {
-					if(!player.hasPermission("duels.arenas.setspawn")) {
+				}
+				else if (args[1].equalsIgnoreCase("setspawn2")) {
+					if (!player.hasPermission("duels.arenas.setspawn")) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
 						return true;
 					}
 					String arenaName = args[2];
 					Arena arena = plugin.getArenaManager().getArena(arenaName);
-					if(arena == null) {
+					if (arena == null) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoArenaByThatNameMessage")).replace("<arena>", arenaName));
 						return true;
 					}
@@ -281,15 +302,18 @@ public class DuelCmd implements CommandExecutor{
 					player.sendMessage(ChatColor.GREEN + "Spawn2 Set!");
 					plugin.getArenaManager().saveArenaToFile(arena);
 					return true;
-				}else {
+				}
+				else {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.IncorrectArgsMessage")));
 					return true;
 				}
-			}else {
+			}
+			else {
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.IncorrectArgsMessage")));
 				return true;
 			}
-		}else {
+		}
+		else {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.IncorrectArgsMessage")));
 			return true;
 		}
