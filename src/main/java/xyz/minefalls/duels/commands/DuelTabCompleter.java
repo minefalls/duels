@@ -18,7 +18,7 @@ public class DuelTabCompleter implements TabCompleter{
 			arguments.add("leaderboard");
 			arguments.add("arenas");
 			arguments.add("kits");
-			arguments.add("setlobby");
+			arguments.add("lobby");
 		}
 		else if(args.length == 2) {
 			if (args[1].equalsIgnoreCase("arenas")) {

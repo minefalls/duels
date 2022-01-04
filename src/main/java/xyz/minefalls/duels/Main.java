@@ -6,26 +6,27 @@ import java.io.File;
 import java.io.IOException;
 
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import xyz.minefalls.duels.arenas.ArenaManager;
-import xyz.minefalls.duels.arenas.LobbySpawnManager;
 import xyz.minefalls.duels.commands.Duel;
 import xyz.minefalls.duels.commands.DuelCmd;
 import xyz.minefalls.duels.commands.DuelTabCompleter;
 import xyz.minefalls.duels.events.ArenaEvents;
+import xyz.minefalls.duels.events.StartTimerEvents;
 import xyz.minefalls.duels.kits.KitManager;
 import xyz.minefalls.duels.utils.CoinUtils;
 import xyz.minefalls.duels.utils.DiscordLinkedUtils;
@@ -54,7 +55,6 @@ public class Main extends JavaPlugin {
 	@Getter private DiscordLinkedUtils discordUtils;
 	@Getter private CoinUtils coinUtils;
 	@Getter private MongoClient mongoClient;
-	@Getter private LobbySpawnManager lobbyManager;
 
 	
 	/**
@@ -64,21 +64,23 @@ public class Main extends JavaPlugin {
 	public void onEnable() {
 		getConfig().options().copyDefaults(true);
 		saveConfig();
+		PluginManager pm = getServer().getPluginManager();
 		
 		createFiles();
 		arenaManager = new ArenaManager(this);
 		kitManager = new KitManager(this);
 		statUtils = new StatUtils(this);
 		lbUtils = new LeaderboardUtils(this);
-		lobbyManager = new LobbySpawnManager(this);
-		mongoClient = MongoClients.create("mongodb+srv://giorno420:giornoisgod@cluster0.c5xhj.mongodb.net/test?ssl=true&ssl_cert_reqs=CERT_NONE");
+//		mongoClient = MongoClients.create("mongodb+srv://giorno420:giornoisgod@cluster0.c5xhj.mongodb.net/test?ssl=true&ssl_cert_reqs=CERT_NONE");
 		discordUtils = new DiscordLinkedUtils(this);
 		coinUtils = new CoinUtils(this);
 
 		getCommand("dueladmin").setExecutor(new DuelCmd(this));
 		getCommand("dueladmin").setTabCompleter(new DuelTabCompleter());
 		getCommand("duel").setExecutor(new Duel(this));
-		getServer().getPluginManager().registerEvents(new ArenaEvents(this), this);
+		pm.registerEvents(new ArenaEvents(this), this);
+		pm.registerEvents(new StartTimerEvents(this), this);
+
 	}
 
 	/**
@@ -282,5 +284,16 @@ public class Main extends JavaPlugin {
             throw new IOException("Unable to decode class type.", e);
         }
     }
+
+	/**
+	 * Gets the location to be teleported to
+	 * after a match is over
+	 * @return
+	 *   The Location object
+	 */
+	public Location getGameSpawn(){
+		String[] coords = getConfig().getString("LobbySpawn").split("/");
+		return new Location(Bukkit.getWorld(coords[0]), Double.parseDouble(coords[1]),Double.parseDouble(coords[2]), Double.parseDouble(coords[3]), Float.parseFloat(coords[4]), Float.parseFloat(coords[5]));
+	}
 
 }

@@ -43,7 +43,7 @@ public class DuelRequestManager {
             if (arena.getPlayer1() == null && arena.getPlayer2() == null){
                 arena.addPlayer(requester);
                 arena.addPlayer(requestGetter);
-                if (arena.canStart()){ // ik this is kinda useless but i just wanna be sure
+                if (arena.canStart()){
                     arena.start();
                     
                     this.requester = null;

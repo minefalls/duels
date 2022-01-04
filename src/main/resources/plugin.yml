@@ -1,11 +1,11 @@
-name: Duels
-author: Dartanman
+name: MineFallsDuels
+author: TheGiorno
 main: xyz.minefalls.duels.Main
-version: 3.0.7
+version: 1.0
 api-version: 1.16
 commands:
   dueladmin:
-    description: Duels base command
+    description: Duels admin commands
     usage: /<command>
   duel:
     description: Duel someone!

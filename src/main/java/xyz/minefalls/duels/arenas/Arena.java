@@ -2,10 +2,11 @@ package xyz.minefalls.duels.arenas;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
+import org.bukkit.scheduler.BukkitRunnable;
 import xyz.minefalls.duels.Main;
 import xyz.minefalls.duels.utils.CoinUtils;
 import xyz.minefalls.duels.utils.PlayerRestorationInfo;
@@ -19,12 +20,15 @@ import org.bukkit.ChatColor;
  */
 public class Arena {
 
+   // TODO: set it so that players can't drop items and pickup items when they're in game/start timer
+
 	private Main plugin;
 	private int id;
+	private int startTimer = 20; // 10 seconds * 2 because the runnable runs per .5 seconds
+	private boolean isStarting = false;
 	private String name;
 	private Location spawn1;
 	private Location spawn2;
-	private Location lobbyLocation;
 	private boolean active = false;
 	private Player[] players;
 	private CoinUtils coinUtils;
@@ -42,7 +46,6 @@ public class Arena {
 		plugin = pl;
 		players = new Player[2];
 		this.coinUtils = pl.getCoinUtils();
-		this.lobbyLocation = pl.getLobbyManager().getLobbyLocation();
 	}
 	
 	/**
@@ -70,10 +73,10 @@ public class Arena {
 	 * @param loser
 	 *   The loser
 	 */
-	public void end(Player winner, Player loser) { // i fucking hate redundant errors
+	public void end(Player winner, Player loser) {
 		winner.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.WinMessage")));
 
-		coinUtils.addCoins(winner, 100);
+//		coinUtils.addCoins(winner, 100);
 
 		plugin.getStatUtils().addWin(winner);
 		PlayerRestorationInfo pri = new PlayerRestorationInfo(null);
@@ -83,16 +86,17 @@ public class Arena {
 		catch (NullPointerException e) {
 			// loser disconnected, they didn't die. As such, they are not here to be sent a message.
 		}
-		for(PlayerRestorationInfo priL : PlayerRestorationInfo.pris) {
-			if(priL.getPlayer().getName().equals(winner.getName())) {
+		for (PlayerRestorationInfo priL : PlayerRestorationInfo.pris) {
+			if (priL.getPlayer().getName().equals(winner.getName())) {
 				pri = priL;
 			}
 		}
 		pri.apply();
+		players[0].teleport(plugin.getGameSpawn());
+		players[1].teleport(plugin.getGameSpawn());
+
 		PlayerRestorationInfo.pris.remove(pri);
-		players[0].teleport(lobbyLocation);
 		players[0] = null;
-		players[1].teleport(lobbyLocation);
 		players[1] = null;
 		active = false;
 	}
@@ -103,9 +107,10 @@ public class Arena {
 	public void start() {
 		PlayerRestorationInfo pri1 = new PlayerRestorationInfo(players[0]);
 		PlayerRestorationInfo pri2 = new PlayerRestorationInfo(players[1]);
+
 		active = true;
-		if (spawn1 == null || spawn2 == null || lobbyLocation == null) {
-			for(Player p : players) {
+		if (spawn1 == null || spawn2 == null) {
+			for (Player p : players) {
 				p.sendMessage(ChatColor.RED + "Unfortunately, this Arena has been set up incorrectly. Contact an Administrator to fix this!");
 				p.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "(They forgot to set the spawn points)");
 			}
@@ -114,22 +119,92 @@ public class Arena {
 			active = false;
 			return;
 		}
-		for(Player p : players) {
+
+		players[0].teleport(spawn1);
+		players[1].teleport(spawn2);
+
+		for (Player p : players) {
+
 			p.setGameMode(GameMode.ADVENTURE);
-			p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0));
-			if(plugin.getConfig().getBoolean("Settings.ForceHealth")) {
+			for (PotionEffect effect: p.getActivePotionEffects()){
+				p.removePotionEffect(effect.getType());
+			}
+			if (plugin.getConfig().getBoolean("Settings.ForceHealth")) {
 				p.setMaxHealth(20);
 				p.setHealth(20);
 			}
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.PrepareToDuelMessage")));
-			if(plugin.getKitManager().getKitMap().containsKey(p.getUniqueId())) {
+			if (plugin.getKitManager().getKitMap().containsKey(p.getUniqueId())) {
 				plugin.getKitManager().giveKit(p, plugin.getKitManager().getKitMap().get(p.getUniqueId()));
-			}else {
+			}
+			else {
 				plugin.getKitManager().giveKit(p, "default");
 			}
 		}
-		players[0].teleport(spawn1);
-		players[1].teleport(spawn2);
+
+		new BukkitRunnable(){
+			@Override
+			public void run() {
+
+				isStarting = true;
+
+				// so that the player's yaw and pitch doesn't change
+				players[0].teleport(spawn1);
+				players[1].teleport(spawn2);
+
+				// reading this makes me cry
+				if (startTimer == 20){
+					players[0].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[0].sendTitle(ChatColor.GOLD + "①⓪", "", 10, 15, 20);
+					players[1].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[1].sendTitle(ChatColor.GOLD + "①⓪", "", 10, 15, 20);
+				}
+				if (startTimer == 10){
+					players[0].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[0].sendTitle(ChatColor.GOLD + "⑤", "", 10, 15, 20);
+					players[1].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[1].sendTitle(ChatColor.GOLD + "⑤", "", 10, 15, 20);
+				}
+				if (startTimer == 8){
+					players[0].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[0].sendTitle(ChatColor.GOLD + "④", "", 0, 25, 0);
+					players[1].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[1].sendTitle(ChatColor.GOLD + "④", "", 0, 25, 0);
+				}
+				if (startTimer == 6){
+					players[0].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[0].sendTitle(ChatColor.GOLD + "③", "", 0, 25, 0);
+					players[1].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[1].sendTitle(ChatColor.GOLD + "③", "", 0, 25, 0);
+				}
+				if (startTimer == 4){
+					players[0].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[0].sendTitle(ChatColor.GOLD + "②", "", 0, 25, 0);
+					players[1].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[1].sendTitle(ChatColor.GOLD + "②", "", 0, 25, 0);
+				}
+				if (startTimer == 2){
+					players[0].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[0].sendTitle(ChatColor.GOLD + "①", "", 0, 25, 0);
+					players[1].playSound(players[0].getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
+					players[1].sendTitle(ChatColor.GOLD + "①", "", 0, 25, 0);
+				}
+
+				startTimer--;
+
+				if (startTimer == 0){
+					isStarting = false;
+
+					for (Player p : players) {
+						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+						p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.PrepareToDuelMessage")));
+					}
+					startTimer = 20;
+
+					this.cancel();
+				}
+			}
+		}.runTaskTimer(plugin, 0, 10);
+
 	}
 	
 	/**
@@ -146,7 +221,7 @@ public class Arena {
 					return true;
 				}
 			}
-			catch(NullPointerException e) {
+			catch (NullPointerException e) {
 				// null is not the player
 				continue;
 			}
@@ -219,6 +294,15 @@ public class Arena {
 	public boolean getActive() {
 		return active;
 	}
+
+	/**
+	 * Returns if the arena is still in the start cooldown
+	 * @return
+	 *   Start status of the arena
+	 */
+	public boolean getStarting(){
+		return isStarting;
+	}
 	
 	/**
 	 * Returns the arena's ID
@@ -272,24 +356,6 @@ public class Arena {
 	 */
 	public void setSpawn2(Location spawn2) {
 		this.spawn2 = spawn2;
-	}
-
-	/**
-	 * Returns the second spawnpoint
-	 * @return
-	 *   The second spawnpoint
-	 */
-	public Location getLobbyLocation() {
-		return lobbyLocation;
-	}
-
-	/**
-	 * Sets the second spawnpoint
-	 * @param lobbyLocation
-	 *   The Location of the lobby
-	 */
-	public void setLobbyLocation(Location lobbyLocation) {
-		this.lobbyLocation = lobbyLocation;
 	}
 
 }

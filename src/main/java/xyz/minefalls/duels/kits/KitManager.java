@@ -84,7 +84,8 @@ public class KitManager {
 			plugin.saveConfig();
 			plugin.reloadConfig();
 			return true;
-		}else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -130,10 +131,11 @@ public class KitManager {
 	 *   True if successful, false if not.
 	 */
 	public boolean setKit(Player player, String kitName) {
-		if(kitExists(kitName)) {
+		if (kitExists(kitName)) {
 			kitMap.put(player.getUniqueId(), kitName);
 			return true;
-		}else {
+		}
+		else {
 			return false;
 		}
 	}

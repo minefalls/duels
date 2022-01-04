@@ -89,14 +89,9 @@ public class DuelCmd implements CommandExecutor{
 				showHelpMenu(player, label);
 				return true;
 			}
-			else if (args[0].equalsIgnoreCase("setlobby")) {
-				if (!player.hasPermission("duels.arenas.setlobby")) {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.NoPermissionMessage")));
-					return true;
-				}
-				player.sendMessage(ChatColor.GREEN + "Lobby location Set!");
-				plugin.getLobbyManager().saveLobbyLocation(player.getLocation());
-				return true;
+			else if (args[0].equalsIgnoreCase("lobby")){
+				plugin.getConfig().set("LobbySpawn", player.getWorld().getName() + "/" + player.getLocation().getX() + "/" + player.getLocation().getY() + "/" + player.getLocation().getZ() + "/" + player.getLocation().getYaw() + "/" + player.getLocation().getPitch());
+				player.sendRawMessage(ChatColor.GREEN + "The spawn has been set to your location");
 			}
 			else if (args[0].equalsIgnoreCase("join")){
 				if (!player.hasPermission("duels.join")) {
@@ -207,6 +202,7 @@ public class DuelCmd implements CommandExecutor{
 					}
 				}
 			}
+
 			else {
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.IncorrectArgsMessage")));
 				return true;
@@ -317,6 +313,8 @@ public class DuelCmd implements CommandExecutor{
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("Messages.IncorrectArgsMessage")));
 			return true;
 		}
+
+		return true;
 	}
 
 }

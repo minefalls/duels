@@ -154,7 +154,7 @@ public class ArenaManager {
 	 *   The arena if found, or null if not
 	 */
 	public Arena getArena(String name) {
-		for(Arena arena : arenaList) {
+		for (Arena arena : arenaList) {
 			if (arena.getName().equalsIgnoreCase(name)) {
 				return arena;
 			}
@@ -170,7 +170,7 @@ public class ArenaManager {
 	 *   The arena if found, or null if not
 	 */
 	public Arena getArena(Player player) {
-		for(Arena arena : arenaList) {
+		for (Arena arena : arenaList) {
 			if(arena.containsPlayer(player)) {
 				return arena;
 			}

@@ -1,6 +1,7 @@
 # don't manually write the kits unless you speak base64
 Settings:
   ForceHealth: true
+  DisabledInGameCommands:
 Messages:
   WinMessage: '&aYou won the duel!'
   LoseMessage: '&cYou lost the duel!'

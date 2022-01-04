@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerCommandSendEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
@@ -34,11 +36,11 @@ public class ArenaEvents implements Listener{
 		if (bungee) {
 			// blank for now
 		}
-		else{
+		else {
 			// Bukkit/Spigot
 			if (plugin.getArenaManager().getArena(player) != null) {
 				Arena arena = plugin.getArenaManager().getArena(player);
-				if(!arena.getActive()) {
+				if (!arena.getActive()) {
 					// They joined the arena but the duel has not started yet
 					return;
 				}
@@ -46,7 +48,7 @@ public class ArenaEvents implements Listener{
 				if (arena.getPlayer1().getName().equals(player.getName())) {
 					arena.end(arena.getPlayer2(), arena.getPlayer1());
 				}
-				else{
+				else {
 					arena.end(arena.getPlayer1(), arena.getPlayer2());
 				}
 			}
@@ -55,7 +57,7 @@ public class ArenaEvents implements Listener{
 	
 	
 	@EventHandler
-	public void onQuit(PlayerQuitEvent event) throws UnknownHostException {
+	public void onQuit(PlayerQuitEvent event){
 		Player player = event.getPlayer();
 		UUID uuid = player.getUniqueId();
 		String uuidStr = uuid.toString();
@@ -66,15 +68,16 @@ public class ArenaEvents implements Listener{
 		}
 		else {
 			// Bukkit/Spigot
-			if(plugin.getArenaManager().getArena(player) != null) {
+			if (plugin.getArenaManager().getArena(player) != null) {
 				Arena arena = plugin.getArenaManager().getArena(player);
-				if(!arena.getActive()) {
+				if (!arena.getActive()) {
 					// They joined the arena but the duel has not started yet
 					return;
 				}
-				if(arena.getPlayer1().getName().equals(player.getName())) {
+				if (arena.getPlayer1().getName().equals(player.getName())) {
 					arena.end(arena.getPlayer2(), arena.getPlayer1());
-				}else {
+				}
+				else {
 					arena.end(arena.getPlayer1(), arena.getPlayer2());
 				}
 			}
@@ -86,7 +89,7 @@ public class ArenaEvents implements Listener{
 		Player player = event.getPlayer();
 		PlayerRestorationInfo pri = new PlayerRestorationInfo(null);
 		for(PlayerRestorationInfo priL : PlayerRestorationInfo.pris) {
-			if(priL.getPlayer().getName().equals(player.getName())) {
+			if (priL.getPlayer().getName().equals(player.getName())) {
 				pri = priL;
 			}
 		}
@@ -95,9 +98,22 @@ public class ArenaEvents implements Listener{
             @Override
             public void run() {
         		priF.apply();
+        		if (priF.getPlayer().getBedSpawnLocation() != null && priF.getPlayer().equals(player)) event.setRespawnLocation(priF.getPlayer().getBedSpawnLocation());
+        		else if (priF.getPlayer().getBedSpawnLocation() != null && priF.getPlayer().equals(player)) event.setRespawnLocation(plugin.getGameSpawn());
         		PlayerRestorationInfo.pris.remove(priF);
             }
         }, 10L);
+	}
+
+
+	@EventHandler
+	public void commandSend (PlayerCommandPreprocessEvent event){
+		Player player = event.getPlayer();
+		if (plugin.getArenaManager().getArena(player) != null){
+			if (plugin.getConfig().getStringList("DisabledInGameCommands").contains(event.getMessage())){
+				event.setCancelled(true);
+			}
+		}
 	}
 
 }

@@ -27,6 +27,7 @@ import xyz.minefalls.duels.managers.DuelRequestManager;
 public class Duel implements CommandExecutor {
 
     private Main plugin;
+    private boolean accepted = false;
 
     /**
      * Command Constructor method
@@ -49,6 +50,12 @@ public class Duel implements CommandExecutor {
         }
 
         Player player1 = (Player) sender;
+
+        if (plugin.getArenaManager().getArena(player1) != null){
+            player1.sendRawMessage(ChatColor.RED + "You're already in a match! Quit this one to send them a request");
+            return true;
+        }
+        accepted = false;
 
         /* GUI instance */
         Gui gui = Gui.gui()
@@ -82,14 +89,24 @@ public class Duel implements CommandExecutor {
         if (Bukkit.getPlayerExact(args[0]) != null){
             Player player2 = Bukkit.getPlayerExact(args[0]);
 
+            if (plugin.getArenaManager().getArena(player2) != null){
+                player1.sendRawMessage(ChatColor.RED + "Sorry, " + player2.getDisplayName() + " is already in a match");
+                return true;
+            }
+
             DuelRequestManager requestManager = new DuelRequestManager(plugin, player1, player2);
 
             // adding the gui items
-            GuiItem accept = ItemBuilder.from(acceptStack).asGuiItem(event -> requestManager.accept());
+            GuiItem accept = ItemBuilder.from(acceptStack).asGuiItem(event -> {
+                requestManager.accept();
+                accepted = true;
+            });
             GuiItem deny = ItemBuilder.from(denyStack).asGuiItem(event -> requestManager.deny());
 
             gui.setCloseGuiAction(event -> {
-                requestManager.deny();
+                if (!accepted) {
+                    requestManager.deny();
+                }
             });
 
             gui.setItem(11, accept);
